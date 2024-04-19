@@ -31,7 +31,10 @@ import com.andrescarvajald.colorpalettegenerator.viewModel.MainScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetOptions(showSheetOptions: MutableState<Boolean>, viewModel: MainScreenViewModel) {
+fun BottomSheetOptions(
+    showSheetOptions: MutableState<Boolean>,
+    viewModel: MainScreenViewModel
+) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
     ModalBottomSheet(
         onDismissRequest = { showSheetOptions.value = false },
@@ -51,7 +54,9 @@ fun BottomSheetOptions(showSheetOptions: MutableState<Boolean>, viewModel: MainS
                     },
             ) {
                 Row(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -77,14 +82,17 @@ fun BottomSheetOptions(showSheetOptions: MutableState<Boolean>, viewModel: MainS
                     .fillMaxWidth()
                     .height(50.dp)
                     .clickable {
-                        // TODO
+                        viewModel.saveInDatabase()
+                        showSheetOptions.value = false
                     }
                     .also {
                         Modifier.padding(10.dp)
                     },
             ) {
                 Row(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(

@@ -13,11 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Redo
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropUp
-import androidx.compose.material.icons.rounded.Redo
-import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerState
@@ -44,7 +44,10 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun BottomBar(viewModel: MainScreenViewModel, drawerState: DrawerState) {
+fun BottomBar(
+    viewModel: MainScreenViewModel,
+    drawerState: DrawerState,
+) {
     val scope = rememberCoroutineScope()
     var value by remember { mutableStateOf("5") }
     val showSheetOptions = remember { mutableStateOf(false) }
@@ -74,11 +77,11 @@ fun BottomBar(viewModel: MainScreenViewModel, drawerState: DrawerState) {
 
         Row (verticalAlignment = Alignment.CenterVertically){
             IconButton(modifier = Modifier.width(30.dp), onClick = { viewModel.undo() }, enabled = viewModel.canUndo.value ) {
-                Icon(imageVector = Icons.Rounded.Undo, contentDescription = "Undo")
+                Icon(imageVector = Icons.AutoMirrored.Rounded.Undo, contentDescription = "Undo")
             }
             Spacer(modifier = Modifier.width(5.dp))
             IconButton(modifier = Modifier.width(30.dp), onClick = { viewModel.redo() }, enabled = viewModel.canRedo.value) {
-                Icon(imageVector = Icons.Rounded.Redo, contentDescription = "Redo")
+                Icon(imageVector = Icons.AutoMirrored.Rounded.Redo, contentDescription = "Redo")
             }
             Column(
                 modifier = Modifier.fillMaxHeight(),
