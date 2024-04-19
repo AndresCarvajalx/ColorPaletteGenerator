@@ -21,25 +21,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.andrescarvajald.colorpalettegenerator.domain.database.ColorPaletteDatabase
 import com.andrescarvajald.colorpalettegenerator.ui.components.BottomBar
 import com.andrescarvajald.colorpalettegenerator.ui.components.ColorPaletteCard
 import com.andrescarvajald.colorpalettegenerator.ui.components.TopBar
@@ -83,9 +82,11 @@ data class DrawerSheet(
  */
 
 @Composable
-fun MainScreen(themeState: MutableState<Boolean>) {
+fun MainScreen(themeState: MutableState<Boolean>, db: ColorPaletteDatabase) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val viewModel: MainScreenViewModel = viewModel<MainScreenViewModel>()
+    val viewModel: MainScreenViewModel = viewModel<MainScreenViewModel> {
+        MainScreenViewModel(db.colorPaletteDao)
+    }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var selected by rememberSaveable { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
@@ -200,12 +201,8 @@ fun MainScreen(themeState: MutableState<Boolean>) {
                     }
                 }
             ) { paddingValues ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues), contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Coming soon", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                Surface(Modifier.padding(paddingValues).padding(horizontal = 8.dp)){
+                    SavesPalettesScreen(db, snackbarHostState)
                 }
             }
         }
@@ -216,13 +213,4 @@ fun MainScreen(themeState: MutableState<Boolean>) {
             }
         }
     }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun MainScreenPreview() {
-    val themeState = remember {
-        mutableStateOf(false)
-    }
-    MainScreen(themeState)
 }
