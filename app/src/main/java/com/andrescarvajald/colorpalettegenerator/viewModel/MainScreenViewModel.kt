@@ -5,10 +5,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.andrescarvajald.colorpalettegenerator.domain.dao.ColorPaletteDao
 import com.andrescarvajald.colorpalettegenerator.model.ColorPalette
+import com.andrescarvajald.colorpalettegenerator.model.ColorPaletteEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class MainScreenViewModel : ViewModel() {
+class MainScreenViewModel(private val dao: ColorPaletteDao) : ViewModel() {
     var state: MutableState<State> = mutableStateOf(State())
         private set
     private val history = mutableStateOf<List<List<ColorPalette>>>(emptyList())
@@ -23,6 +28,11 @@ class MainScreenViewModel : ViewModel() {
         generateRandomPalette(5)
     }
 
+    fun saveInDatabase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.insertPalette(ColorPaletteEntity(palettes = state.value.colorList))
+        }
+    }
     fun generateRandomPalette(count: Int) {
         val generateList = mutableListOf<ColorPalette>()
         val random = Random.Default
