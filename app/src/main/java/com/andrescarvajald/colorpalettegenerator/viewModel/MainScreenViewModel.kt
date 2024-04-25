@@ -33,32 +33,38 @@ class MainScreenViewModel(private val dao: ColorPaletteDao) : ViewModel() {
             dao.insertPalette(ColorPaletteEntity(palettes = state.value.colorList))
         }
     }
-    fun generateRandomPalette(count: Int) {
+    fun generateRandomPalette(count: Int? = null, colorList: List<ColorPalette>? = null) {
         val generateList = mutableListOf<ColorPalette>()
         val random = Random.Default
         var color: Long
 
-        if (state.value.transparency)
-            for (i in 0 until count) {
-                val locked = state.value.colorList.getOrNull(i)?.locked ?: false
-                if (!locked) {
-                    color = random.nextLong(0xFFFFFFFF)
-                    generateList.add(ColorPalette(hexCode = color))
-                } else {
-                    generateList.add(state.value.colorList[i])
+        if(count != null) {
+            if (state.value.transparency)
+                for (i in 0 until count) {
+                    val locked = state.value.colorList.getOrNull(i)?.locked ?: false
+                    if (!locked) {
+                        color = random.nextLong(0xFFFFFFFF)
+                        generateList.add(ColorPalette(hexCode = color))
+                    } else {
+                        generateList.add(state.value.colorList[i])
+                    }
                 }
-            }
-        else
-            for (i in 0 until count) {
-                val locked = state.value.colorList.getOrNull(i)?.locked ?: false
-                if (!locked) {
-                    color = random.nextLong(0xFF000000, 0xFFFFFFFF)
-                    generateList.add(ColorPalette(hexCode = color))
-                } else {
-                    generateList.add(state.value.colorList[i])
+            else
+                for (i in 0 until count) {
+                    val locked = state.value.colorList.getOrNull(i)?.locked ?: false
+                    if (!locked) {
+                        color = random.nextLong(0xFF000000, 0xFFFFFFFF)
+                        generateList.add(ColorPalette(hexCode = color))
+                    } else {
+                        generateList.add(state.value.colorList[i])
+                    }
                 }
-            }
-        state.value = state.value.copy(colorList = generateList)
+        }
+        if(colorList != null) {
+            state.value = state.value.copy(colorList = colorList)
+        } else {
+            state.value = state.value.copy(colorList = generateList)
+        }
         saveInHistory(generateList)
     }
 

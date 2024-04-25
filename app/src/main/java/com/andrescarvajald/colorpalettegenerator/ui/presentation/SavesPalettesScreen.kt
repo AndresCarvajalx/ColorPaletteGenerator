@@ -41,14 +41,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.andrescarvajald.colorpalettegenerator.domain.database.ColorPaletteDatabase
 import com.andrescarvajald.colorpalettegenerator.model.ColorPaletteEntity
+import com.andrescarvajald.colorpalettegenerator.viewModel.MainScreenViewModel
 import com.andrescarvajald.colorpalettegenerator.viewModel.SavePalettesViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SavesPalettesScreen(db: ColorPaletteDatabase, snackbarHostState: SnackbarHostState) {
-    val viewModel: SavePalettesViewModel =
+fun SavesPalettesScreen(
+    db: ColorPaletteDatabase,
+    snackbarHostState: SnackbarHostState,
+    mainScreenViewModel: MainScreenViewModel
+) {
+    val savePalettesViewModel: SavePalettesViewModel =
         viewModel<SavePalettesViewModel> { SavePalettesViewModel(db.colorPaletteDao) }
-    val state = viewModel.state.collectAsState()
+    val state = savePalettesViewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
 
     if (state.value.palettes.isEmpty()) {
@@ -67,14 +72,15 @@ fun SavesPalettesScreen(db: ColorPaletteDatabase, snackbarHostState: SnackbarHos
                 PaletteCard(
                     palettes,
                     onRemove = {
-                        viewModel.removePalette(palettes)
+                        savePalettesViewModel.removePalette(palettes)
                         scope.launch {
                             snackbarHostState.showSnackbar("The palette was removed")
                         }
                     },
                     onRestore = {
                         scope.launch {
-                            snackbarHostState.showSnackbar("Todo")
+                            mainScreenViewModel.generateRandomPalette(colorList = palettes.palettes)
+                            snackbarHostState.showSnackbar("Palette restored")
                         }
                     }
                 )

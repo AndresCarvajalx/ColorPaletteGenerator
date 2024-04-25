@@ -195,7 +195,7 @@ fun MainScreen(themeState: MutableState<Boolean>, db: ColorPaletteDatabase) {
                         .padding(paddingValues)
                         .padding(horizontal = 8.dp)
                 ) {
-                    SavesPalettesScreen(db, snackbarHostState)
+                    SavesPalettesScreen(db, snackbarHostState, viewModel)
                 }
             }
         }
