@@ -5,10 +5,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.andrescarvajald.colorpalettegenerator.domain.dao.ColorPaletteDao
 import com.andrescarvajald.colorpalettegenerator.model.ColorPalette
+import com.andrescarvajald.colorpalettegenerator.model.ColorPaletteEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class MainScreenViewModel : ViewModel() {
+class MainScreenViewModel(private val dao: ColorPaletteDao) : ViewModel() {
     var state: MutableState<State> = mutableStateOf(State())
         private set
     private val history = mutableStateOf<List<List<ColorPalette>>>(emptyList())
@@ -23,32 +28,43 @@ class MainScreenViewModel : ViewModel() {
         generateRandomPalette(5)
     }
 
-    fun generateRandomPalette(count: Int) {
+    fun saveInDatabase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.insertPalette(ColorPaletteEntity(palettes = state.value.colorList))
+        }
+    }
+    fun generateRandomPalette(count: Int? = null, colorList: List<ColorPalette>? = null) {
         val generateList = mutableListOf<ColorPalette>()
         val random = Random.Default
         var color: Long
 
-        if (state.value.transparency)
-            for (i in 0 until count) {
-                val locked = state.value.colorList.getOrNull(i)?.locked ?: false
-                if (!locked) {
-                    color = random.nextLong(0xFFFFFFFF)
-                    generateList.add(ColorPalette(hexCode = color))
-                } else {
-                    generateList.add(state.value.colorList[i])
+        if(count != null) {
+            if (state.value.transparency)
+                for (i in 0 until count) {
+                    val locked = state.value.colorList.getOrNull(i)?.locked ?: false
+                    if (!locked) {
+                        color = random.nextLong(0xFFFFFFFF)
+                        generateList.add(ColorPalette(hexCode = color))
+                    } else {
+                        generateList.add(state.value.colorList[i])
+                    }
                 }
-            }
-        else
-            for (i in 0 until count) {
-                val locked = state.value.colorList.getOrNull(i)?.locked ?: false
-                if (!locked) {
-                    color = random.nextLong(0xFF000000, 0xFFFFFFFF)
-                    generateList.add(ColorPalette(hexCode = color))
-                } else {
-                    generateList.add(state.value.colorList[i])
+            else
+                for (i in 0 until count) {
+                    val locked = state.value.colorList.getOrNull(i)?.locked ?: false
+                    if (!locked) {
+                        color = random.nextLong(0xFF000000, 0xFFFFFFFF)
+                        generateList.add(ColorPalette(hexCode = color))
+                    } else {
+                        generateList.add(state.value.colorList[i])
+                    }
                 }
-            }
-        state.value = state.value.copy(colorList = generateList)
+        }
+        if(colorList != null) {
+            state.value = state.value.copy(colorList = colorList)
+        } else {
+            state.value = state.value.copy(colorList = generateList)
+        }
         saveInHistory(generateList)
     }
 

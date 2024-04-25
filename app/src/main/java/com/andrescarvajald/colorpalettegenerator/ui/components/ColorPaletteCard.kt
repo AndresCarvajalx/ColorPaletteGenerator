@@ -48,12 +48,13 @@ fun ColorPaletteCard(
     paletteColor: ColorPalette,
     snackbarHostState: SnackbarHostState,
     viewModel: MainScreenViewModel,
+    showActions: Boolean,
+    onClick: () -> Unit,
     onDrag: () -> Unit,
     onBlockColor: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
-    var showActions by remember { mutableStateOf(false) }
     var locked by remember(paletteColor.locked) { mutableStateOf(paletteColor.locked) }
     val hexCodeFormatted = ToHexString(paletteColor.hexCode)
     val colorAccent = if (IsDarkColor(paletteColor.hexCode)) Color.White else Color.Black
@@ -73,7 +74,7 @@ fun ColorPaletteCard(
             .height(100.dp)
             .background(color)
             .clickable {
-                showActions = !showActions
+                onClick()
             }, contentAlignment = Alignment.Center
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
@@ -108,7 +109,7 @@ fun ColorPaletteCard(
                                     withDismissAction = true
                                 )
                             }
-                            showActions = !showActions
+                            onClick()
                         }
                     ) {
                         Icon(
@@ -119,7 +120,7 @@ fun ColorPaletteCard(
                     }
                     IconButton(onClick = {
                         onBlockColor()
-                        showActions = !showActions
+                        onClick()
                     }) {
                         Icon(
                             imageVector = if (paletteColor.locked) {
