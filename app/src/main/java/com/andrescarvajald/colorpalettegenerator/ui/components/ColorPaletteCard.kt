@@ -3,14 +3,19 @@ package com.andrescarvajald.colorpalettegenerator.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.ArrowDropUp
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
@@ -29,29 +34,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.andrescarvajald.colorpalettegenerator.R
 import com.andrescarvajald.colorpalettegenerator.model.ColorPalette
 import com.andrescarvajald.colorpalettegenerator.util.CopyToClipBoard
-import com.andrescarvajald.colorpalettegenerator.util.ToHexString
 import com.andrescarvajald.colorpalettegenerator.util.IsDarkColor
+import com.andrescarvajald.colorpalettegenerator.util.ToHexString
 import com.andrescarvajald.colorpalettegenerator.viewModel.MainScreenViewModel
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun ColorPaletteCard(
+inline fun ColorPaletteCard(
     paletteColor: ColorPalette,
     snackbarHostState: SnackbarHostState,
     viewModel: MainScreenViewModel,
     showActions: Boolean,
-    onClick: () -> Unit,
-    onDrag: () -> Unit,
-    onBlockColor: () -> Unit
+    crossinline onClick: () -> Unit,
+    crossinline moveUp: () -> Unit,
+    crossinline moveDown: () -> Unit,
+    crossinline moveToFirst: () -> Unit,
+    crossinline moveToLast: () -> Unit,
+    crossinline onBlockColor: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
@@ -75,11 +80,54 @@ fun ColorPaletteCard(
             .background(color)
             .clickable {
                 onClick()
-            }, contentAlignment = Alignment.Center
+            },
+        contentAlignment = Alignment.Center
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
-            IconButton(onClick = { onDrag() }) {
-                Icon(imageVector = ImageVector.vectorResource(id = R.drawable.drag_grid_2x3_icon), contentDescription = null, tint = color.copy(red = color.red * factor, green = color.green * factor, blue = color.blue * factor))
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                val tintColor = color.copy(
+                    red = color.red * factor,
+                    green = color.green * factor,
+                    blue = color.blue * factor
+                )
+                // TODO Use Box
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { moveUp() },
+                                onLongPress = {
+                                    moveToFirst()
+                                })
+                        }) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowDropUp,
+                        contentDescription = null,
+                        tint = tintColor
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = { moveDown() },
+                                onLongPress = {
+                                moveToLast()
+                            })
+                        }) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowDropDown,
+                        contentDescription = null,
+                        tint = tintColor
+                    )
+                }
             }
         }
         Row(

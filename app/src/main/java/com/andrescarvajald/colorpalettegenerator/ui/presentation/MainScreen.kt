@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -45,17 +44,6 @@ import com.andrescarvajald.colorpalettegenerator.ui.components.ColorPaletteCard
 import com.andrescarvajald.colorpalettegenerator.ui.components.TopBar
 import com.andrescarvajald.colorpalettegenerator.viewModel.MainScreenViewModel
 import kotlinx.coroutines.launch
-
-/*
-* TODO  [X]Funcionalidad del boton de bloqueo
-* TODO  [X]Mostrar colores icono de colores bloqueados
-* TODO  [X]cambiar los iconos y pasarlos como parametros al drawerItem
-* TODO  [X]Al darle click al hex del color poder editarlos
-* TODO  []Drag and drop colors
-* TODO  [X]Undo y redo botones
-* TODO  [X]Funcionalidad del boton de historia
-* TODO  []Ejemplos
-* */
 
 @Composable
 fun MainScreen(themeState: MutableState<Boolean>, db: ColorPaletteDatabase) {
@@ -147,30 +135,41 @@ fun MainScreen(themeState: MutableState<Boolean>, db: ColorPaletteDatabase) {
                     }
                 }
             ) { paddingValues ->
-                var currentlyShowingActionsIndex by remember { mutableStateOf(-1) }
+                var currentlyShowingActionsIndex by remember { mutableIntStateOf(-1) }
                 LazyColumn(
                     modifier = Modifier.padding(paddingValues)
                 ) {
-                    items(viewModel.state.value.colorList, key = { c -> c.hexCode }) { color ->
+                    items(viewModel.state.value.colorList, key = { it.hexCode }) { color ->
                         ColorPaletteCard(
                             color,
                             snackbarHostState,
                             viewModel,
-                            showActions = currentlyShowingActionsIndex == viewModel.state.value.colorList.indexOf(color),
+                            showActions = currentlyShowingActionsIndex == viewModel.state.value.colorList.indexOf(
+                                color
+                            ),
                             onClick = {
-                                currentlyShowingActionsIndex = if (currentlyShowingActionsIndex == viewModel.state.value.colorList.indexOf(color)) {
-                                    -1
-                                } else {
-                                    viewModel.state.value.colorList.indexOf(color)
-                                }
+                                currentlyShowingActionsIndex =
+                                    if (currentlyShowingActionsIndex == viewModel.state.value.colorList.indexOf(
+                                            color
+                                        )
+                                    ) {
+                                        -1
+                                    } else {
+                                        viewModel.state.value.colorList.indexOf(color)
+                                    }
                             },
-                            onDrag = {/*TODO*/ }) {
-                            viewModel.toggleLockColor(
-                                viewModel.state.value.colorList.indexOf(
-                                    color
+                            moveUp = { viewModel.onMoveColorUp(color) },
+                            moveDown = { viewModel.onMoveColorDown(color) },
+                            moveToFirst = { viewModel.onMoveColorToFirst(color) },
+                            moveToLast = { viewModel.onMoveColorToLast(color) },
+                            onBlockColor = {
+                                viewModel.toggleLockColor(
+                                    viewModel.state.value.colorList.indexOf(
+                                        color
+                                    )
                                 )
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             }

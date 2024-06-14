@@ -33,6 +33,77 @@ class MainScreenViewModel(private val dao: ColorPaletteDao) : ViewModel() {
             dao.insertPalette(ColorPaletteEntity(palettes = state.value.colorList))
         }
     }
+
+    fun onMoveColorToFirst(color: ColorPalette) {
+        updateColorList { colorList ->
+            val index = colorList.indexOf(color)
+            if (index > 0) {
+                val updatedList = colorList.toMutableList().apply {
+                    removeAt(index)
+                    add(0, color)
+                }
+                updatedList
+            } else {
+                colorList
+            }
+        }
+    }
+
+    fun onMoveColorToLast(color: ColorPalette) {
+        updateColorList { colorList ->
+            val index = colorList.indexOf(color)
+            if (index != colorList.lastIndex) {
+                val updatedList = colorList.toMutableList().apply {
+                    removeAt(index)
+                    add(color)
+                }
+                updatedList
+            } else {
+                colorList
+            }
+        }
+    }
+
+    fun onMoveColorUp(color: ColorPalette) {
+        updateColorList { colorList ->
+            val index = colorList.indexOf(color)
+            if (index > 0) {
+                val updatedList = colorList.toMutableList().apply {
+                    val previous = this[index - 1]
+                    this[index - 1] = color
+                    this[index] = previous
+                }
+                updatedList
+            } else {
+                colorList
+            }
+        }
+    }
+
+    fun onMoveColorDown(color: ColorPalette) {
+        updateColorList { colorList ->
+            val index = colorList.indexOf(color)
+            if (index < colorList.lastIndex) {
+                val updatedList = colorList.toMutableList().apply {
+                    val next = this[index + 1]
+                    this[index + 1] = color
+                    this[index] = next
+                }
+                updatedList
+            } else {
+                colorList
+            }
+        }
+    }
+
+    private fun updateColorList(update: (List<ColorPalette>) -> List<ColorPalette>) {
+        val currentList = state.value.colorList
+        val updatedList = update(currentList)
+        if (updatedList != currentList) {
+            state.value = state.value.copy(colorList = updatedList)
+        }
+    }
+
     fun generateRandomPalette(count: Int? = null, colorList: List<ColorPalette>? = null) {
         val generateList = mutableListOf<ColorPalette>()
         val random = Random.Default
